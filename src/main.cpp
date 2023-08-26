@@ -3,10 +3,11 @@
 #include <SoftwareSerial.h>
 #include <RuipuBattery.h>
 #include <WebServer.h>
+#include <Adafruit_NeoPixel.h>
 
 #define MAC "7c:38:ad:4c:3f:45"
 #define DEADZONE 13
-
+#define led 2
 WebServer server(80);
 
 extern void setupB();
@@ -23,6 +24,13 @@ float low;
 float high;
 uint8_t maxTemp;
 uint8_t minTemp;
+
+#define PIN        6 // On Trinket or Gemma, suggest changing this to 1
+
+// How many NeoPixels are attached to the Arduino?
+#define NUMPIXELS 16 // Popular NeoPixel ring size
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
 
 void handleWeb()
 {
@@ -43,6 +51,8 @@ void handleWeb()
 
 void setup()
 {
+  pixels.begin(); 
+  pinMode(led, OUTPUT);
   Serial.begin(115200);
   Serial.println("BMS");
   BMSSerial.begin(9600);
@@ -76,9 +86,24 @@ time_t unlockTimeout = 0;
 time_t infoTimeout = 0;
 
 bool haveReadData = false;
+bool DR =0;
+
 
 void loop()
 {
+  DR = PS4.Triangle();
+  if (DR >0)
+  {
+    pixels.setPixelColor(NUMPIXELS, pixels.Color(255, 255, 255));
+    digitalWrite(led, HIGH);
+  }else{
+
+    pixels.setPixelColor(NUMPIXELS, pixels.Color(0, 0, 0));
+    digitalWrite(led, LOW);
+  }
+  
+  pixels.clear();
+
   server.handleClient();
 
   time_t now = millis();
@@ -86,7 +111,7 @@ void loop()
   // Do BMS stuffs
   if (now > unlockTimeout)
   {
-    Serial.println("unlock");
+   // Serial.println("unlock");
     BMS.unlock();         // Send the unlock command
     haveReadData = false; // Reset the read flag
 
