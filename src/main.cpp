@@ -14,6 +14,8 @@ extern void setupB();
 extern void loopB();
 extern void Send(int16_t uSteer, int16_t uSpeed);
 
+SoftwareSerial HoverSerial(21, 22); // RX, TX
+
 SoftwareSerial BMSSerial(33, 32); // RX (green wire), TX (blue wire)
 RuipuBattery BMS(&BMSSerial);
 
@@ -232,7 +234,7 @@ void loop()
 #define SPEED_STEP 20            // [-] Speed step
 // #define DEBUG_RX                        // [-] Debug received data. Prints all bytes to serial (comment-out to disable)
 
-SoftwareSerial HoverSerial(21, 22); // RX, TX
+
 
 // Global variables
 uint8_t idx = 0;        // Index for new data pointer
